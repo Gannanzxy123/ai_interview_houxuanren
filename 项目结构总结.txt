@@ -1,0 +1,16 @@
+ai_interview_用户版/
+├── 00_入口_首页.html
+├── public/
+│   ├── styles/
+│   │   └── main.css
+│   └── scripts/
+│       ├── delegate.js
+│       ├── actions.js
+│       ├── state.js
+│       └── questions.js
+└── pages/
+    ├── candidate_portal.html
+    ├── select_role.html
+    ├── upload_resume.html
+    ├── choose_interviewer.html
+    └── simulate_training.html

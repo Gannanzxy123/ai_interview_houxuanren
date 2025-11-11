@@ -1,0 +1,18 @@
+﻿{
+  "name": "ai-interview-sim",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "serve": "http-server . -p 8080",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "test:desktop": "playwright test --project=chromium --project=firefox --project=webkit",
+    "test:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "test:simulate": "playwright test tests/simulate_training.spec.ts",
+    "test:full": "playwright test tests/full_flow.spec.ts",
+    "test:guide": "playwright test -g guide",
+    "test:role": "playwright test tests/role_filter_and_guide.spec.ts"
+  },
+  "devDependencies": {}
+}

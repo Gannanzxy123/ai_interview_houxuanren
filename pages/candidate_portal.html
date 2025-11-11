@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI面试官 - 候选人自助入口</title>
+    <link rel="stylesheet" href="../public/styles/main.css">
+    <style>
+        .portal-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .portal-card {
+            background: white;
+            border-radius: 12px;
+            padding: 60px 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 40px 0;
+        }
+        .portal-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .portal-subtitle {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+        .feature-card {
+            padding: 30px 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-container">
+        <div class="portal-card">
+            <h1 class="portal-title">AI 面试官训练营</h1>
+            <p class="portal-subtitle">
+                模拟真实面试场景，获得个性化反馈<br>
+                提升面试技巧，增强求职竞争力
+            </p>
+            <button type="button" 
+                    class="start-btn"
+                    data-action="Portal.Start"
+                    data-test="portal-start-btn"
+                    aria-label="开始模拟面试训练">
+                开始模拟训练
+            </button>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>精准岗位匹配</h3>
+                <p>基于真实岗位要求定制面试问题</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>多类型面试官</h3>
+                <p>HR、技术、经理、压力面全方位模拟</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>详细能力分析</h3>
+                <p>多维度评分雷达图与改进建议</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../public/scripts/delegate.js"></script>
+    <script src="../public/scripts/actions.js"></script>
+    <script src="../public/scripts/state.js"></script>
+    <script>
+        // 引导系统
+        if (new URLSearchParams(window.location.search).has('guide')) {
+            setTimeout(() => {
+                toast('欢迎使用AI面试官训练系统！点击"开始模拟训练"按钮进入岗位选择');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

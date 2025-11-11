@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择面试官类型 - AI面试官</title>
+    <link rel="stylesheet" href="../public/styles/main.css">
+    <style>
+        .page-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .interviewers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        .interviewer-card {
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 30px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .interviewer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .interviewer-card.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .interviewer-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        .interviewer-title {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .interviewer-description {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .interviewer-features {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        .interviewer-features li {
+            padding: 5px 0;
+            color: #5f6368;
+            position: relative;
+            padding-left: 20px;
+        }
+        .interviewer-features li:before {
+            content: "✓";
+            color: #27ae60;
+            position: absolute;
+            left: 0;
+        }
+        .checkbox {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .interviewer-card.selected .checkbox {
+            background: #667eea;
+            border-color: #667eea;
+        }
+        .interviewer-card.selected .checkbox:after {
+            content: "✓";
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px;
+            cursor: help;
+        }
+        .tooltip-icon {
+            color: #667eea;
+            font-size: 1rem;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        .start-btn {
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin: 40px auto 0;
+            display: block;
+        }
+        .start-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .start-btn:not(:disabled):hover {
+            background: #5a6fd8;
+        }
+        .selection-hint {
+            text-align: center;
+            color: #7f8c8d;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress-step completed">1. 选择岗位</div>
+        <div class="progress-step completed">2. 上传简历</div>
+        <div class="progress-step active">3. 面试官类型</div>
+        <div class="progress-step">4. 模拟训练</div>
+    </div>
+
+    <div class="page-container">
+        <h1 class="page-title">选择面试官类型</h1>
+        <p class="page-subtitle">选择您希望面对的面试官类型，可多选以模拟综合面试场景</p>
+
+        <div class="selection-hint">
+            已选择 <span id="selectedCount">0</span> 种面试官类型
+        </div>
+
+        <div class="interviewers-grid">
+            <div class="interviewer-card" data-type="HR">
+                <div class="checkbox"></div>
+                <div class="interviewer-icon">💼</div>
+                <h3 class="interviewer-title">
+                    HR面试官
+                    <span class="tooltip">
+                        <span class="tooltip-icon">ℹ️</span>
+                        <span class="tooltip-text">考察综合素质、文化匹配度、职业规划</span>
+                    </span>
+                </h3>
+                <p class="interviewer-description">考察综合素质、文化匹配与职业发展</p>
+                <ul class="interviewer-features">
+                    <li>动机与价值观考察</li>
+                    <li>沟通表达能力评估</li>
+                    <li>职业规划与发展</li>
+                    <li>团队协作能力</li>
+                </ul>
+            </div>
+
+            <div class="interviewer-card" data-type="Tech">
+                <div class="checkbox"></div>
+                <div class="interviewer-icon">🔧</div>
+                <h3 class="interviewer-title">
+                    技术面试官
+                    <span class="tooltip">
+                        <span class="tooltip-icon">ℹ️</span>
+                        <span class="tooltip-text">深入考察技术能力、项目经验、解决问题能力</span>
+                    </span>
+                </h3>
+                <p class="interviewer-description">深入考察技术能力与项目经验</p>
+                <ul class="interviewer-features">
+                    <li>技术深度与广度</li>
+                    <li>项目细节追问</li>
+                    <li>算法与编码能力</li>
+                    <li>技术方案设计</li>
+                </ul>
+            </div>
+
+            <div class="interviewer-card" data-type="Manager">
+                <div class="checkbox"></div>
+                <div class="interviewer-icon">👨‍💼</div>
+                <h3 class="interviewer-title">
+                    用人经理
+                    <span class="tooltip">
+                        <span class="tooltip-icon">ℹ️</span>
+                        <span class="tooltip-text">关注业务理解、目标导向、团队贡献</span>
+                    </span>
+                </h3>
+                <p class="interviewer-description">关注业务理解与团队贡献</p>
+                <ul class="interviewer-features">
+                    <li>业务目标理解</li>
+                    <li>团队协作经验</li>
+                    <li>问题解决能力</li>
+                    <li>绩效与产出</li>
+                </ul>
+            </div>
+
+            <div class="interviewer-card" data-type="Stress">
+                <div class="checkbox"></div>
+                <div class="interviewer-icon">⚡</div>
+                <h3 class="interviewer-title">
+                    压力面试官
+                    <span class="tooltip">
+                        <span class="tooltip-icon">ℹ️</span>
+                        <span class="tooltip-text">模拟高压环境，测试应变能力和心理素质</span>
+                    </span>
+                </h3>
+                <p class="interviewer-description">模拟高压环境测试应变能力</p>
+                <ul class="interviewer-features">
+                    <li>快速反应测试</li>
+                    <li>冲突场景处理</li>
+                    <li>抗压能力评估</li>
+                    <li>情绪稳定性</li>
+                </ul>
+            </div>
+        </div>
+
+        <button type="button" 
+                class="start-btn"
+                id="startBtn"
+                data-action="Sim.Start"
+                data-test="start-simulation-btn"
+                aria-label="开始模拟面试训练"
+                disabled>
+            开始模拟训练
+        </button>
+    </div>
+
+    <script src="../public/scripts/delegate.js"></script>
+    <script src="../public/scripts/actions.js"></script>
+    <script src="../public/scripts/state.js"></script>
+    <script>
+        const selectedTypes = new Set();
+
+        document.querySelectorAll('.interviewer-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const type = card.dataset.type;
+                
+                if (selectedTypes.has(type)) {
+                    selectedTypes.delete(type);
+                    card.classList.remove('selected');
+                } else {
+                    selectedTypes.add(type);
+                    card.classList.add('selected');
+                }
+
+                updateSelectionState();
+            });
+        });
+
+        function updateSelectionState() {
+            const count = selectedTypes.size;
+            document.getElementById('selectedCount').textContent = count;
+            document.getElementById('startBtn').disabled = count === 0;
+
+            // 保存选择状态到state
+            if (window.updateInterviewerSelection) {
+                window.updateInterviewerSelection(Array.from(selectedTypes));
+            }
+        }
+
+        // 引导系统
+        if (new URLSearchParams(window.location.search).has('guide')) {
+            setTimeout(() => {
+                toast('请选择至少一种面试官类型，可以多选以模拟综合面试场景');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

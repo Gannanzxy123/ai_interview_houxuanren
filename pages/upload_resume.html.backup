@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上传简历 - AI面试官</title>
+    <link rel="stylesheet" href="../public/styles/main.css">
+    <style>
+        .page-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 12px;
+            padding: 60px 40px;
+            text-align: center;
+            margin: 40px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #bdc3c7;
+        }
+        .upload-area:hover .upload-icon {
+            color: #667eea;
+        }
+        .upload-text {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+        .upload-hint {
+            color: #95a5a6;
+            font-size: 0.9rem;
+        }
+        .file-input {
+            display: none;
+        }
+        .browse-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: background 0.3s ease;
+        }
+        .browse-btn:hover {
+            background: #5a6fd8;
+        }
+        .file-list {
+            margin: 30px 0;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .file-icon {
+            font-size: 1.5rem;
+        }
+        .file-details h4 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+        }
+        .file-details span {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .next-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 20px;
+        }
+        .next-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .next-btn:not(:disabled):hover {
+            background: #5a6fd8;
+        }
+        .validation-error {
+            color: #e74c3c;
+            text-align: center;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress-step completed">1. 选择岗位</div>
+        <div class="progress-step active">2. 上传简历</div>
+        <div class="progress-step">3. 面试官类型</div>
+        <div class="progress-step">4. 模拟训练</div>
+    </div>
+
+    <div class="page-container">
+        <h1 class="page-title">上传简历</h1>
+        <p class="page-subtitle">上传您的简历文件，AI将基于简历内容进行针对性提问</p>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text">拖拽文件到此处或点击上传</div>
+            <div class="upload-hint">支持 PDF、DOCX、MD 格式，最大 10MB</div>
+            <button type="button" class="browse-btn" data-test="browse-resume-btn">
+                选择文件
+            </button>
+            <input type="file" 
+                   class="file-input" 
+                   id="fileInput"
+                   accept=".pdf,.docx,.md"
+                   data-test="resume-file-input"
+                   aria-label="选择简历文件">
+        </div>
+
+        <div class="validation-error" id="validationError" data-test="validation-error">
+            文件大小不能超过10MB，且仅支持PDF、DOCX、MD格式
+        </div>
+
+        <div class="file-list" id="fileList">
+            <!-- 文件列表将通过JS动态生成 -->
+        </div>
+
+        <button type="button" 
+                class="next-btn"
+                id="nextBtn"
+                data-action="Resume.Upload.Next"
+                data-test="resume-next-btn"
+                aria-label="继续下一步选择面试官类型"
+                disabled>
+            继续下一步
+        </button>
+    </div>
+
+    <script src="../public/scripts/delegate.js"></script>
+    <script src="../public/scripts/actions.js"></script>
+    <script src="../public/scripts/state.js"></script>
+    <script>
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+        const ALLOWED_TYPES = ['application/pdf', 
+                             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                             'text/markdown'];
+
+        let uploadedFile = null;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const nextBtn = document.getElementById('nextBtn');
+        const validationError = document.getElementById('validationError');
+
+        // 点击上传区域触发文件选择
+        uploadArea.addEventListener('click', () => fileInput.click());
+        document.querySelector('.browse-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+
+        // 拖拽功能
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // 文件选择处理
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            validationError.style.display = 'none';
+
+            // 验证文件类型
+            if (!ALLOWED_TYPES.includes(file.type) && !file.name.match(/\.(pdf|docx|md)$/i)) {
+                showValidationError('不支持的文件格式，请上传PDF、DOCX或MD文件');
+                return;
+            }
+
+            // 验证文件大小
+            if (file.size > MAX_FILE_SIZE) {
+                showValidationError('文件大小不能超过10MB');
+                return;
+            }
+
+            uploadedFile = file;
+            renderFileList();
+            nextBtn.disabled = false;
+
+            // 触发上传动作
+            const event = new Event('change', { bubbles: true });
+            Object.defineProperty(event, 'target', { value: { files: [file] } });
+            fileInput.dispatchEvent(event);
+        }
+
+        function showValidationError(message) {
+            validationError.textContent = message;
+            validationError.style.display = 'block';
+            uploadedFile = null;
+            renderFileList();
+            nextBtn.disabled = true;
+        }
+
+        function renderFileList() {
+            if (!uploadedFile) {
+                fileList.innerHTML = '';
+                return;
+            }
+
+            const fileSize = (uploadedFile.size / 1024 / 1024).toFixed(2);
+            fileList.innerHTML = `
+                <div class="file-item" data-test="uploaded-file-item">
+                    <div class="file-info">
+                        <div class="file-icon">📄</div>
+                        <div class="file-details">
+                            <h4>${uploadedFile.name}</h4>
+                            <span>${fileSize} MB</span>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button type="button" 
+                                class="remove-btn"
+                                data-action="Resume.Remove"
+                                data-test="remove-resume-btn"
+                                aria-label="删除简历文件">
+                            删除
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 引导系统
+        if (new URLSearchParams(window.location.search).has('guide')) {
+            setTimeout(() => {
+                toast('请上传您的简历文件，支持拖拽或点击选择文件。上传后点击"继续下一步"');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

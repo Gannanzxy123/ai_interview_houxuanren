@@ -1,0 +1,663 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>妯℃嫙璁粌 - AI闈㈣瘯瀹?/title>
+    <link rel="stylesheet" href="../public/styles/main.css">
+    <style>
+        .training-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .interview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 25px;
+        }
+        .progress-info {
+            text-align: center;
+        }
+        .progress-text {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        .progress-bar {
+            width: 300px;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        .question-container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .question-type {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .answer-section {
+            margin: 30px 0;
+        }
+        .answer-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .actions-section {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .skip-btn {
+            background: #95a5a6;
+            color: white;
+        }
+        .skip-btn:hover {
+            background: #7f8c8d;
+        }
+        .next-btn {
+            background: #667eea;
+            color: white;
+        }
+        .next-btn:hover {
+            background: #5a6fd8;
+        }
+        .end-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        .end-btn:hover {
+            background: #c0392b;
+        }
+        .scoring-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .scoring-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .score-sliders {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .score-item {
+            margin-bottom: 15px;
+        }
+        .score-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #5f6368;
+        }
+        
+        .score-slider.untouched {
+            box-shadow: 0 0 0 3px rgba(231,76,60,0.25);
+            border-radius: 4px;
+        }
+        .score-value {
+            font-weight: bold;
+            color: #667eea;
+        }
+        .report-container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-top: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .report-title {
+            text-align: center;
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .radar-chart {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+        }
+        .dimension-scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .dimension-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .dimension-name {
+            font-size: 1rem;
+            color: #5f6368;
+            margin-bottom: 10px;
+        }
+        .dimension-score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .advice-section {
+            margin: 40px 0;
+        }
+        .advice-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .advice-content {
+            line-height: 1.6;
+            color: #5f6368;
+        }
+        .report-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        .report-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .export-btn {
+            background: #27ae60;
+            color: white;
+        }
+        .export-btn:hover {
+            background: #219653;
+        }
+        .retry-btn {
+            background: #3498db;
+            color: white;
+        }
+        .retry-btn:hover {
+            background: #2980b9;
+        }
+        .restart-btn {
+            background: #e67e22;
+            color: white;
+        }
+        .restart-btn:hover {
+            background: #d35400;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+            .dim-help { display:inline-block; margin-left:8px; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; background:#eef2ff; color:#4c6ef5; font-weight:700; cursor:default; font-size:0.75rem; position:relative; }
+        .dim-help:hover::after { content: attr(data-tip); position:absolute; left:50%; transform: translate(-50%, 8px); background:#2c3e50; color:#fff; padding:6px 10px; border-radius:6px; font-size:0.85rem; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:10; }</style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress-step completed">1. 閫夋嫨宀椾綅</div>
+        <div class="progress-step completed">2. 涓婁紶绠€鍘?/div>
+        <div class="progress-step completed">3. 闈㈣瘯瀹樼被鍨?/div>
+        <div class="progress-step active">4. 妯℃嫙璁粌</div>
+    </div>
+
+    <div class="training-container">
+        <!-- 闈㈣瘯杩涜涓晫闈?-->
+        <div id="interviewSection">
+            <div class="interview-header">
+                <div class="timer" id="timer" data-test="interview-timer">00:00</div>
+                <div class="progress-info">
+                    <div class="progress-text" id="progressText">闂 1/10</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <div class="question-type" id="questionType">HR闈㈣瘯</div>
+                <div class="question-text" id="questionText" data-test="question-text">
+                    璇风畝鍗曚粙缁嶄竴涓嬫偍鑷繁锛屽苟璇存槑涓轰粈涔堝杩欎釜宀椾綅鎰熷叴瓒ｏ紵
+                </div>
+
+                <div class="answer-section">
+                    <textarea class="answer-input" 
+                              id="answerInput"
+                              placeholder="璇疯緭鍏ユ偍鐨勫洖绛?.."
+                              data-test="answer-input"
+                              aria-label="鍥炵瓟杈撳叆妗?></textarea>
+                </div>
+
+                <div class="scoring-section">
+                    <div class="scoring-title">璇蜂负鏈鍥炵瓟璇勫垎锛堝彲閫夛級</div>
+                    <div class="score-sliders">
+                        <div class="score-item">
+                            <div class="score-label">
+                                <span>娌熼€氳兘鍔?/span>
+                                <span class="dim-help" data-tip="沟通表达维度：表达清晰、结构化、倾听与反馈">?</span>`r`n                                <span class="score-value" id="commScore">0</span>
+                            </div>
+                            <input type="range" class="score-slider" min="0" max="10" value="0" data-dimension="Comm">
+                                                        <div class="slider-hint">请拖动评分</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-label">
+                                <span>鎶€鏈繁搴?/span>
+                                <span class="dim-help" data-tip="技术深度维度：原理理解、选型取舍、实践经验">?</span>`r`n                                <span class="score-value" id="techScore">0</span>
+                            </div>
+                            <input type="range" class="score-slider" min="0" max="10" value="0" data-dimension="Tech">
+                                                        <div class="slider-hint">请拖动评分</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-label">
+                                <span>閫昏緫鎬濈淮</span>
+                                <span class="dim-help" data-tip="逻辑思维维度：分析分解、因果推演、论证有据">?</span>`r`n                                <span class="score-value" id="logicScore">0</span>
+                            </div>
+                            <input type="range" class="score-slider" min="0" max="10" value="0" data-dimension="Logic">
+                                                        <div class="slider-hint">请拖动评分</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-label">
+                                <span>鎶楀帇鑳藉姏</span>
+                                <span class="dim-help" data-tip="抗压能力维度：情绪管理、权衡取舍、风险预案">?</span>`r`n                                <span class="score-value" id="stressScore">0</span>
+                            </div>
+                            <input type="range" class="score-slider" min="0" max="10" value="0" data-dimension="Stress">
+                                                        <div class="slider-hint">请拖动评分</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions-section">
+                    <button type="button" 
+                            class="action-btn skip-btn"
+                            data-action="Sim.Skip"
+                            data-test="skip-question-btn"
+                            aria-label="璺宠繃姝ら">
+                        璺宠繃
+                    </button>
+                    <button type="button" 
+                            class="action-btn next-btn"
+                            data-action="Sim.Answer.Next"
+                            data-test="next-question-btn"
+                            aria-label="涓嬩竴棰?>
+                        涓嬩竴棰?
+                    </button>
+                    <button type="button" 
+                            class="action-btn end-btn"
+                            data-action="Sim.End"
+                            data-test="end-interview-btn"
+                            aria-label="缁撴潫闈㈣瘯">
+                        缁撴潫闈㈣瘯
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 鎶ュ憡鐣岄潰 -->
+        <div class="report-container" id="reportSection">
+            <h2 class="report-title">闈㈣瘯璇勪及鎶ュ憡</h2>
+            
+            <div class="radar-chart" data-test="radar-chart">
+                闆疯揪鍥惧崰浣?- 缁煎悎鑳藉姏璇勪及
+            </div>
+
+            <div class="dimension-scores">
+                <div class="dimension-item">
+                    <div class="dimension-name">娌熼€氳兘鍔?/div>
+                    <div class="dimension-score" id="reportCommScore">8.2</div>
+                </div>
+                <div class="dimension-item">
+                    <div class="dimension-name">鎶€鏈繁搴?/div>
+                    <div class="dimension-score" id="reportTechScore">7.8</div>
+                </div>
+                <div class="dimension-item">
+                    <div class="dimension-name">閫昏緫鎬濈淮</div>
+                    <div class="dimension-score" id="reportLogicScore">8.5</div>
+                </div>
+                <div class="dimension-item">
+                    <div class="dimension-name">鎶楀帇鑳藉姏</div>
+                    <div class="dimension-score" id="reportStressScore">7.2</div>
+                </div>
+            </div>
+
+            <div class="advice-section">
+                <h3 class="advice-title">鏀硅繘寤鸿</h3>
+                <div class="advice-content" id="adviceContent" data-test="advice-content">
+                    鍩轰簬鎮ㄧ殑闈㈣瘯琛ㄧ幇锛屾垜浠缓璁細<br><br>
+                    1. <strong>鎶€鏈繁搴?/strong>锛氬湪椤圭洰鎻忚堪涓彲浠ユ洿娣卞叆璁ㄨ鎶€鏈€夊瀷鍜屾灦鏋勬€濊€?br>
+                    2. <strong>娌熼€氳〃杈?/strong>锛氬洖绛旀椂鍙互鏇存湁鏉＄悊锛屼娇鐢?STAR 娉曞垯鏉ョ粍缁囧洖绛?br>
+                    3. <strong>鎶楀帇鑳藉姏</strong>锛氬湪鍘嬪姏闂闈㈠墠鍙互鏇翠粠瀹癸紝澶氬睍绀鸿В鍐抽棶棰樼殑鎬濊矾
+                </div>
+            </div>
+
+            <div class="report-actions">
+                <button type="button" 
+                        class="report-btn export-btn"
+                        data-action="Report.Save"
+                        data-test="export-report-btn"
+                        aria-label="瀵煎嚭PDF鎶ュ憡">
+                    瀵煎嚭PDF
+                </button>
+                <button type="button" 
+                        class="report-btn retry-btn"
+                        data-action="Report.Retry"
+                        data-test="retry-interview-btn"
+                        aria-label="閲嶆柊閫夋嫨闈㈣瘯瀹?>
+                    閲嶆柊閫夋嫨闈㈣瘯瀹?
+                </button>
+                <button type="button" 
+                        class="report-btn restart-btn"
+                        data-action="Report.Restart"
+                        data-test="restart-flow-btn"
+                        aria-label="鍥炲埌宀椾綅閫夋嫨">
+                    鍥炲埌宀椾綅閫夋嫨
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../public/scripts/delegate.js"></script>
+    <script src="../public/scripts/actions.js"></script>
+    <script src="../public/scripts/state.js"></script>
+    <script src="../public/scripts/questions.js"></script>
+    <script>
+        let timerInterval;
+        let startTime;
+        var currentQuestionIndex = 0;
+        let questions = [];
+
+        // 鍒濆鍖栭棶棰?
+        function initializeQuestions() {
+            // 浠庨棶棰樿剼鏈幏鍙栭棶棰?
+            questions = window.generateQuestions?.(/* 宀椾綅鍜岄潰璇曞畼绫诲瀷 */) || getDefaultQuestions();
+            updateQuestionDisplay();
+            startTimer();
+        }
+
+        function getDefaultQuestions() {
+            return [
+                {
+                    type: 'HR',
+                    text: '璇风畝鍗曚粙缁嶄竴涓嬫偍鑷繁锛屽苟璇存槑涓轰粈涔堝杩欎釜宀椾綅鎰熷叴瓒ｏ紵',
+                    dimensions: ['Comm', 'Logic']
+                },
+                {
+                    type: 'Tech',
+                    text: '璇锋弿杩颁竴涓偍瑙ｅ喅杩囩殑鎶€鏈毦棰橈紝鎮ㄦ槸濡備綍鍒嗘瀽鍜岃В鍐崇殑锛?,
+                    dimensions: ['Tech', 'Logic']
+                },
+                {
+                    type: 'Manager',
+                    text: '鍦ㄥ洟闃熷悎浣滀腑閬囧埌鎰忚鍒嗘鏃讹紝鎮ㄩ€氬父浼氬浣曞鐞嗭紵',
+                    dimensions: ['Comm', 'Stress']
+                },
+                {
+                    type: 'Stress',
+                    text: '濡傛灉鎮ㄧ殑椤圭洰杩涘害涓ラ噸婊炲悗锛屾偍浼氶噰鍙栦粈涔堟帾鏂芥潵杩借刀杩涘害锛?,
+                    dimensions: ['Stress', 'Logic']
+                }
+            ];
+        }
+
+        function updateQuestionDisplay() {
+            console.log('=== 鏇存柊闂鏄剧ず ===');
+            console.log('1. currentQuestionIndex:', currentQuestionIndex);
+            console.log('2. questions.length:', questions.length);
+            
+            if (currentQuestionIndex < questions.length) {
+                const question = questions[currentQuestionIndex];
+                console.log('3. 褰撳墠闂:', question);
+                
+                // 鏇存柊闂绫诲瀷鍜屾枃鏈?
+                document.getElementById('questionType').textContent = getTypeText(question.type);
+                document.getElementById('questionText').textContent = question.text;
+                document.getElementById('progressText').textContent = `闂 ${currentQuestionIndex + 1}/${questions.length}`;
+                document.getElementById('progressFill').style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+                
+                // 鉁?閲嶈锛氭竻绌哄洖绛旇緭鍏ユ
+                const answerInput = document.getElementById('answerInput');
+                if (answerInput) {
+                    answerInput.value = '';
+                    console.log('4. 宸叉竻绌哄洖绛旇緭鍏ユ');
+                }
+                
+                // 鉁?閲嶈锛氶噸缃瘎鍒嗘粦鍧?
+                document.querySelectorAll('.score-slider').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const dimension = e.target.dataset.dimension;
+                const value = e.target.value;
+                try {
+                    const scoreEl = document.getElementById((dimension.toLowerCase()) + 'Score');
+                    if (scoreEl) scoreEl.textContent = value;
+                } catch (e2) {}
+                e.target.dataset.touched = '1';
+                if (parseInt(value) > 0) {
+                    e.target.classList.remove('untouched');
+                } else {
+                    try { e.target.classList.add('untouched'); } catch (e3) {}
+                }
+                try { updateAllRated(); } catch (e4) {}
+            });
+        });
+                console.log('5. 宸查噸缃瘎鍒嗘粦鍧?);
+                
+                // 鉁?娣诲姞瑙嗚鍙嶉鍔ㄧ敾
+                const questionContainer = document.querySelector('.question-container');
+                if (questionContainer) {
+                    questionContainer.style.animation = 'fadeIn 0.3s ease';
+                }
+                
+                console.log('=== 闂鏇存柊瀹屾垚 ===');
+            } else {
+                console.log('鎵€鏈夐棶棰樺凡瀹屾垚锛岃繘鍏ユ姤鍛婄晫闈?);
+                endInterview();
+            }
+        }
+
+        function getTypeText(type) {
+            const typeMap = {
+                'HR': 'HR闈㈣瘯',
+                'Tech': '鎶€鏈潰璇?, 
+                'Manager': '缁忕悊闈㈣瘯',
+                'Stress': '鍘嬪姏闈㈣瘯'
+            };
+            return typeMap[type] || '缁煎悎闈㈣瘯';
+        }
+
+                function setActionsDisabled(disabled) {
+            const btns = document.querySelectorAll('[data-action="Sim.Skip"], [data-action="Sim.Answer.Next"], [data-action="Sim.End"]');
+            btns.forEach(b => b && (b.disabled = !!disabled));
+        }
+
+                        function updateActionButtons() {
+            const skipBtn = document.querySelector('[data-action="Sim.Skip"]');
+            const nextBtn = document.querySelector('[data-action="Sim.Answer.Next"]');
+            const endBtn  = document.querySelector('[data-action="Sim.End"]');
+            if (typeof currentQuestionIndex === 'number' && Array.isArray(questions)) {
+                if (questions.length > 0 && currentQuestionIndex === questions.length - 1) {
+                    if (skipBtn) skipBtn.style.display = 'none';
+                    if (nextBtn) {
+                        nextBtn.style.display = '';
+                        nextBtn.textContent = '提交并生成报告';
+                        nextBtn.setAttribute('aria-label', '提交并生成报告');
+                    }
+                    if (endBtn)  endBtn.style.display  = 'none';
+                } else {
+                    if (skipBtn) skipBtn.style.display = '';
+                    if (nextBtn) {
+                        nextBtn.style.display = '';
+                        nextBtn.textContent = '下一题';
+                        nextBtn.setAttribute('aria-label', '下一题');
+                    }
+                    if (endBtn)  endBtn.style.display  = '';
+                }
+            }
+        }
+                    if (endBtn)  endBtn.style.display  = '';
+                } else {
+                    if (skipBtn) skipBtn.style.display = '';
+                    if (nextBtn) {
+                        nextBtn.style.display = '';
+                        nextBtn.textContent = '下一题';
+                        nextBtn.setAttribute('aria-label', '下一题');
+                    }
+                    if (endBtn)  endBtn.style.display  = '';
+                }
+            }
+        } else {
+                    if (skipBtn) skipBtn.style.display = '';
+                    if (nextBtn) nextBtn.style.display = '';
+                    if (endBtn)  endBtn.style.display  = '';
+                }
+            }
+        }        function updateAllRated() {\r\n            const sliders = document.querySelectorAll('.score-slider');\r\n            const allRated = Array.from(sliders).every(s => parseInt(s.value) > 0);\r\n            const container = document.querySelector('.score-sliders');\r\n            if (container) { if (allRated) { container.classList.add('all-rated'); } else { container.classList.remove('all-rated'); } }\r\n        }\r\n\r\n        function startTimer() {
+            startTime = new Date();
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const diff = Math.floor((now - startTime) / 1000);
+                const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
+                const seconds = (diff % 60).toString().padStart(2, '0');
+                document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function endInterview() {
+            clearInterval(timerInterval);
+            document.getElementById('interviewSection').style.display = 'none';
+            document.getElementById('reportSection').style.display = 'block';
+            
+            // 鐢熸垚鎶ュ憡鏁版嵁
+            generateReport();
+        }
+
+        function generateReport() {
+            // 妯℃嫙鎶ュ憡鏁版嵁鐢熸垚
+            // 瀹為檯搴旇鍩轰簬鐪熷疄鐨勮瘎鍒嗘暟鎹?
+            const scores = {
+                Comm: 8.2,
+                Tech: 7.8,
+                Logic: 8.5,
+                Stress: 7.2
+            };
+
+            document.getElementById('reportCommScore').textContent = scores.Comm;
+            document.getElementById('reportTechScore').textContent = scores.Tech;
+            document.getElementById('reportLogicScore').textContent = scores.Logic;
+            document.getElementById('reportStressScore').textContent = scores.Stress;
+        }
+
+        // 璇勫垎婊戝潡浜嬩欢
+        document.querySelectorAll('.score-slider').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const dimension = e.target.dataset.dimension;
+                const value = e.target.value;
+                try {
+                    const scoreEl = document.getElementById((dimension.toLowerCase()) + 'Score');
+                    if (scoreEl) scoreEl.textContent = value;
+                } catch (e2) {}
+                e.target.dataset.touched = '1';
+                if (parseInt(value) > 0) {
+                    e.target.classList.remove('untouched');
+                } else {
+                    try { e.target.classList.add('untouched'); } catch (e3) {}
+                }
+                try { updateAllRated(); } catch (e4) {}
+            });
+        });
+
+        // 鍒濆鍖?
+        window.updateQuestionDisplay = updateQuestionDisplay;\r\n        window.endInterview = endInterview;\r\n        window.setActionsDisabled = setActionsDisabled;\r\n        window.updateActionButtons = updateActionButtons;
+
+        document.addEventListener('DOMContentLoaded', initializeQuestions);
+
+        // 寮曞绯荤粺
+        if (new URLSearchParams(window.location.search).has('guide')) {
+            setTimeout(() => {
+                toast('妯℃嫙闈㈣瘯宸插紑濮嬶紒璇疯鐪熷洖绛旀瘡涓棶棰橈紝鎮ㄥ彲浠ヤ负鑷繁鐨勮〃鐜拌瘎鍒嗐€傚畬鎴愬悗灏嗙敓鎴愯缁嗘姤鍛娿€?);
+            }, 1000);
+        }
+    </script>
+    <script src="../public/scripts/rpa_test.js"></script>\r\n</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

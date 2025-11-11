@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模拟训练 - AI面试官</title>
+    <link rel="stylesheet" href="../public/styles/main.css">
+    <style>
+        .training-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .interview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 25px;
+        }
+        .progress-info {
+            text-align: center;
+        }
+        .progress-text {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        .progress-bar {
+            width: 300px;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        .question-container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .question-type {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .answer-section {
+            margin: 30px 0;
+        }
+        .answer-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .actions-section {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .skip-btn {
+            background: #95a5a6;
+            color: white;
+        }
+        .skip-btn:hover {
+            background: #7f8c8d;
+        }
+        .next-btn {
+            background: #667eea;
+            color: white;
+        }
+        .next-btn:hover {
+            background: #5a6fd8;
+        }
+        .end-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        .end-btn:hover {
+            background: #c0392b;
+        }
+        .scoring-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .scoring-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .score-sliders {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .score-item {
+            margin-bottom: 15px;
+        }
+        .score-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #5f6368;
+        }
+        .score-slider {
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            outline: none;
+        }
+        .score-value {
+            font-weight: bold;
+            color: #667eea;
+        }
+        .report-container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-top: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .report-title {
+            text-align: center;
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .radar-chart {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+        }
+        .dimension-scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .dimension-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .dimension-name {
+            font-size: 1rem;
+            color: #5f6368;
+            margin-bottom: 10px;
+        }
+        .dimension-score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .advice-section {
+            margin: 40px 0;
+        }
+        .advice-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .advice-content {
+            line-height: 1.6;
+            color: #5f6368;
+        }
+        .report-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        .report-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .export-btn {
+            background: #27ae60;
+            color: white;
+        }
+        .export-btn:hover {
+            background: #219653;
+        }
+        .retry-btn {
+            background: #3498db;
+            color: white;
+        }
+        .retry-btn:hover {
+            background: #2980b9;
+        }
+        .restart-btn {
+            background: #e67e22;
+            color: white;
+        }
+        .restart-btn:hover {
+            background: #d35400;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress-step completed">1. 选择岗位</div>
+        <div class="progress-step completed">2. 上传简历</div>
+        <div class="progress-step completed">3. 面试官类型</div>
+        <div class="progress-step active">4. 模拟训练</div>
+    </div>
+
+    <div class="training-container">
+        <!-- 面试进行中界面 -->
+        <div id="interviewSection">
+            <div class="interview-header">
+                <div class="timer" id="timer" data-test="interview-timer">00:00</div>
+                <div class="progress-info">
+                    <div class="progress-text" id="progressText">问题 1/10</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <div class="question-type" id="questionType">HR面试</div>
+                <div class="question-text" id="questionText" data-test="question-text">
+                    请简单介绍一下您自己，并说明为什么对这个岗位感兴趣？
+                </div>
+
+                <div class="answer-section">
+                    <textarea class="answer-input" 
+                              id="answerInput"
+                              placeholder="请输入您的回答..."
+                              data-test="answer-input"
+                              aria-label="回答输入框"></textarea>
+                </div>
+
+                <div class="scoring-section">
+                    <div class="scoring-title">请为本次回答评分（可选）</div>
+                    <div class="score-sliders">
+                        <div class="score-item">
+                            <div class="score-label">
+                                <span>沟通能力</span>
+                                <span class="score-value" id="commScore">5</span>
+                            </div>
+                            <input type="range" class="score-slider" min="1" max="10" value="5" data-dimension="Comm">
+                        </div>
+                        <div class="score-item">
+                            <div class="score-label">
+                                <span>技术深度</span>
+                                <span class="score-value" id="techScore">5</span>
+                            </div>
+                            <input type="range" class="score-slider" min="1" max="10" value="5" data-dimension="Tech">
+                        </div>
+                        <div class="score-item">
+                            <div class="score-label">
+                                <span>逻辑思维</span>
+                                <span class="score-value" id="logicScore">5</span>
+                            </div>
+                            <input type="range" class="score-slider" min="1" max="10" value="5" data-dimension="Logic">
+                        </div>
+                        <div class="score-item">
+                            <div class="score-label">
+                                <span>抗压能力</span>
+                                <span class="score-value" id="stressScore">5</span>
+                            </div>
+                            <input type="range" class="score-slider" min="1" max="10" value="5" data-dimension="Stress">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions-section">
+                    <button type="button" 
+                            class="action-btn skip-btn"
+                            data-action="Sim.Skip"
+                            data-test="skip-question-btn"
+                            aria-label="跳过此题">
+                        跳过
+                    </button>
+                    <button type="button" 
+                            class="action-btn next-btn"
+                            data-action="Sim.Answer.Next"
+                            data-test="next-question-btn"
+                            aria-label="下一题">
+                        下一题
+                    </button>
+                    <button type="button" 
+                            class="action-btn end-btn"
+                            data-action="Sim.End"
+                            data-test="end-interview-btn"
+                            aria-label="结束面试">
+                        结束面试
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 报告界面 -->
+        <div class="report-container" id="reportSection">
+            <h2 class="report-title">面试评估报告</h2>
+            
+            <div class="radar-chart" data-test="radar-chart">
+                雷达图占位 - 综合能力评估
+            </div>
+
+            <div class="dimension-scores">
+                <div class="dimension-item">
+                    <div class="dimension-name">沟通能力</div>
+                    <div class="dimension-score" id="reportCommScore">8.2</div>
+                </div>
+                <div class="dimension-item">
+                    <div class="dimension-name">技术深度</div>
+                    <div class="dimension-score" id="reportTechScore">7.8</div>
+                </div>
+                <div class="dimension-item">
+                    <div class="dimension-name">逻辑思维</div>
+                    <div class="dimension-score" id="reportLogicScore">8.5</div>
+                </div>
+                <div class="dimension-item">
+                    <div class="dimension-name">抗压能力</div>
+                    <div class="dimension-score" id="reportStressScore">7.2</div>
+                </div>
+            </div>
+
+            <div class="advice-section">
+                <h3 class="advice-title">改进建议</h3>
+                <div class="advice-content" id="adviceContent" data-test="advice-content">
+                    基于您的面试表现，我们建议：<br><br>
+                    1. <strong>技术深度</strong>：在项目描述中可以更深入讨论技术选型和架构思考<br>
+                    2. <strong>沟通表达</strong>：回答时可以更有条理，使用 STAR 法则来组织回答<br>
+                    3. <strong>抗压能力</strong>：在压力问题面前可以更从容，多展示解决问题的思路
+                </div>
+            </div>
+
+            <div class="report-actions">
+                <button type="button" 
+                        class="report-btn export-btn"
+                        data-action="Report.Save"
+                        data-test="export-report-btn"
+                        aria-label="导出PDF报告">
+                    导出PDF
+                </button>
+                <button type="button" 
+                        class="report-btn retry-btn"
+                        data-action="Report.Retry"
+                        data-test="retry-interview-btn"
+                        aria-label="重新选择面试官">
+                    重新选择面试官
+                </button>
+                <button type="button" 
+                        class="report-btn restart-btn"
+                        data-action="Report.Restart"
+                        data-test="restart-flow-btn"
+                        aria-label="回到岗位选择">
+                    回到岗位选择
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../public/scripts/delegate.js"></script>
+    <script src="../public/scripts/actions.js"></script>
+    <script src="../public/scripts/state.js"></script>
+    <script src="../public/scripts/questions.js"></script>
+    <script>
+        let timerInterval;
+        let startTime;
+        let currentQuestionIndex = 0;
+        let questions = [];
+
+        // 初始化问题
+        function initializeQuestions() {
+            // 从问题脚本获取问题
+            questions = window.generateQuestions?.(/* 岗位和面试官类型 */) || getDefaultQuestions();
+            updateQuestionDisplay();
+            startTimer();
+        }
+
+        function getDefaultQuestions() {
+            return [
+                {
+                    type: 'HR',
+                    text: '请简单介绍一下您自己，并说明为什么对这个岗位感兴趣？',
+                    dimensions: ['Comm', 'Logic']
+                },
+                {
+                    type: 'Tech',
+                    text: '请描述一个您解决过的技术难题，您是如何分析和解决的？',
+                    dimensions: ['Tech', 'Logic']
+                },
+                {
+                    type: 'Manager',
+                    text: '在团队合作中遇到意见分歧时，您通常会如何处理？',
+                    dimensions: ['Comm', 'Stress']
+                },
+                {
+                    type: 'Stress',
+                    text: '如果您的项目进度严重滞后，您会采取什么措施来追赶进度？',
+                    dimensions: ['Stress', 'Logic']
+                }
+            ];
+        }
+
+        function updateQuestionDisplay() {
+            if (currentQuestionIndex < questions.length) {
+                const question = questions[currentQuestionIndex];
+                document.getElementById('questionType').textContent = getTypeText(question.type);
+                document.getElementById('questionText').textContent = question.text;
+                document.getElementById('progressText').textContent = `问题 ${currentQuestionIndex + 1}/${questions.length}`;
+                document.getElementById('progressFill').style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+            } else {
+                endInterview();
+            }
+        }
+
+        function getTypeText(type) {
+            const typeMap = {
+                'HR': 'HR面试',
+                'Tech': '技术面试', 
+                'Manager': '经理面试',
+                'Stress': '压力面试'
+            };
+            return typeMap[type] || '综合面试';
+        }
+
+        function startTimer() {
+            startTime = new Date();
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const diff = Math.floor((now - startTime) / 1000);
+                const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
+                const seconds = (diff % 60).toString().padStart(2, '0');
+                document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function endInterview() {
+            clearInterval(timerInterval);
+            document.getElementById('interviewSection').style.display = 'none';
+            document.getElementById('reportSection').style.display = 'block';
+            
+            // 生成报告数据
+            generateReport();
+        }
+
+        function generateReport() {
+            // 模拟报告数据生成
+            // 实际应该基于真实的评分数据
+            const scores = {
+                Comm: 8.2,
+                Tech: 7.8,
+                Logic: 8.5,
+                Stress: 7.2
+            };
+
+            document.getElementById('reportCommScore').textContent = scores.Comm;
+            document.getElementById('reportTechScore').textContent = scores.Tech;
+            document.getElementById('reportLogicScore').textContent = scores.Logic;
+            document.getElementById('reportStressScore').textContent = scores.Stress;
+        }
+
+        // 评分滑块事件
+        document.querySelectorAll('.score-slider').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const dimension = e.target.dataset.dimension;
+                const value = e.target.value;
+                document.getElementById(`${dimension.toLowerCase()}Score`).textContent = value;
+            });
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', initializeQuestions);
+
+        // 引导系统
+        if (new URLSearchParams(window.location.search).has('guide')) {
+            setTimeout(() => {
+                toast('模拟面试已开始！请认真回答每个问题，您可以为自己的表现评分。完成后将生成详细报告。');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

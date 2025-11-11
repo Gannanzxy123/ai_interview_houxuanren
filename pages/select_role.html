@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择岗位 - AI面试官</title>
+    <link rel="stylesheet" href="../public/styles/main.css">
+    <style>
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .search-section {
+            margin-bottom: 30px;
+        }
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 25px;
+            font-size: 1rem;
+            margin: 0 auto;
+            display: block;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .filters {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        .role-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        .role-card.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .role-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .role-company {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .role-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        .tag {
+            background: #f1f3f4;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: #5f6368;
+        }
+        .role-salary {
+            font-size: 1.1rem;
+            color: #e74c3c;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        .select-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+        .select-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .select-btn:not(:disabled):hover {
+            background: #5a6fd8;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress-step active">1. 选择岗位</div>
+        <div class="progress-step">2. 上传简历</div>
+        <div class="progress-step">3. 面试官类型</div>
+        <div class="progress-step">4. 模拟训练</div>
+    </div>
+
+    <div class="page-container">
+        <h1 class="page-title">选择目标岗位</h1>
+        <p class="page-subtitle">请选择您要模拟面试的岗位方向</p>
+
+        <div class="search-section">
+            <input type="text" 
+                   class="search-box" 
+                   placeholder="搜索岗位名称或公司..."
+                   data-test="role-search-input"
+                   aria-label="搜索岗位">
+            
+            <div class="filters">
+                <button type="button" class="filter-btn active" data-filter="all">全部</button>
+                <button type="button" class="filter-btn" data-filter="tech">技术</button>
+                <button type="button" class="filter-btn" data-filter="product">产品</button>
+                <button type="button" class="filter-btn" data-filter="design">设计</button>
+                <button type="button" class="filter-btn" data-filter="operation">运营</button>
+            </div>
+        </div>
+
+        <div class="roles-grid" id="rolesContainer">
+            <!-- 岗位卡片将通过JS动态生成 -->
+        </div>
+    </div>
+
+    <script src="../public/scripts/delegate.js"></script>
+    <script src="../public/scripts/actions.js"></script>
+    <script src="../public/scripts/state.js"></script>
+    <script>
+        // 模拟岗位数据
+        const rolesData = [
+            {
+                id: 'fe-001',
+                title: '高级前端开发工程师',
+                company: '某一线互联网公司',
+                salary: '25-40K',
+                type: 'tech',
+                tags: ['React', 'Vue', 'TypeScript', '工程化'],
+                description: '负责核心产品的前端架构设计与开发'
+            },
+            {
+                id: 'be-001',
+                title: 'Java后端开发工程师',
+                company: '某金融科技公司',
+                salary: '20-35K',
+                type: 'tech',
+                tags: ['Java', 'Spring Cloud', 'MySQL', 'Redis'],
+                description: '参与分布式系统架构设计与开发'
+            },
+            {
+                id: 'pm-001',
+                title: '产品经理',
+                company: '某SaaS服务商',
+                salary: '18-30K',
+                type: 'product',
+                tags: ['用户研究', '原型设计', '数据分析', '敏捷开发'],
+                description: '负责B端产品规划与迭代管理'
+            },
+            {
+                id: 'ui-001',
+                title: 'UI设计师',
+                company: '某电商平台',
+                salary: '15-25K',
+                type: 'design',
+                tags: ['Figma', '交互设计', '用户体验', '设计系统'],
+                description: '负责移动端和Web端界面视觉设计'
+            },
+            {
+                id: 'op-001',
+                title: '用户增长运营',
+                company: '某内容社区',
+                salary: '12-20K',
+                type: 'operation',
+                tags: ['数据分析', '活动策划', '渠道运营', '内容营销'],
+                description: '负责用户拉新、激活和留存策略'
+            },
+            {
+                id: 'fe-002',
+                title: '前端开发专家',
+                company: '某头部大厂',
+                salary: '35-50K',
+                type: 'tech',
+                tags: ['Vue3', '微前端', '性能优化', 'Node.js'],
+                description: '前端技术架构设计与团队管理'
+            }
+        ];
+
+        let selectedRole = null;
+
+        function renderRoles(roles = rolesData) {
+            const container = document.getElementById('rolesContainer');
+            container.innerHTML = roles.map(role => `
+                <div class="role-card ${selectedRole?.id === role.id ? 'selected' : ''}" 
+                     data-role-id="${role.id}"
+                     data-test="role-card-${role.id}">
+                    <h3 class="role-title">${role.title}</h3>
+                    <div class="role-company">${role.company}</div>
+                    <div class="role-salary">${role.salary}</div>
+                    <p>${role.description}</p>
+                    <div class="role-tags">
+                        ${role.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    <button type="button" 
+                            class="select-btn"
+                            data-action="Role.Select"
+                            data-role-id="${role.id}"
+                            data-test="select-role-${role.id}"
+                            aria-label="选择${role.title}岗位">
+                        选择此岗位
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // 初始化渲染
+        renderRoles();
+
+        // 搜索功能
+        document.querySelector('.search-box').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = rolesData.filter(role => 
+                role.title.toLowerCase().includes(searchTerm) ||
+                role.company.toLowerCase().includes(searchTerm) ||
+                role.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+            );
+            renderRoles(filtered);
+        });
+
+        // 筛选功能
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                const filter = e.target.dataset.filter;
+                const filtered = filter === 'all' ? rolesData : rolesData.filter(role => role.type === filter);
+                renderRoles(filtered);
+            });
+        });
+
+        // 引导系统
+        if (new URLSearchParams(window.location.search).has('guide')) {
+            setTimeout(() => {
+                toast('请浏览并选择一个感兴趣的岗位，点击"选择此岗位"按钮继续');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

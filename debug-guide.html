@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简历上传调试指南</title>
+    <style>
+        body { font-family: sans-serif; max-width: 1200px; margin: 40px auto; padding: 20px; background: #f5f5f5; }
+        .card { background: white; border-radius: 8px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h2 { color: #667eea; margin-top: 30px; }
+        .step { background: #f8f9fa; border-left: 4px solid #667eea; padding: 15px; margin: 15px 0; }
+        .highlight { background: yellow; padding: 2px 4px; font-weight: bold; }
+        .btn { display: inline-block; background: #667eea; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin: 10px 5px; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔍 简历上传调试指南</h1>
+        <p>如果上传简历后无法点击"继续下一步"，请按照以下步骤排查。</p>
+    </div>
+
+    <div class="card">
+        <h2>第一步：清除浏览器缓存</h2>
+        <div class="step">
+            <strong>按 Ctrl + Shift + R (Windows) 或 Cmd + Shift + R (Mac) 强制刷新页面</strong>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>第二步：查看上传成功标志</h2>
+        <p>上传成功后，你应该看到：</p>
+        <ol>
+            <li><span class="highlight">文件信息卡片</span>：显示文件名和大小</li>
+            <li><span class="highlight">删除按钮</span>：红色的"删除"按钮</li>
+            <li><span class="highlight">"继续下一步"按钮变为紫色</span>：可以点击</li>
+        </ol>
+    </div>
+
+    <div class="card">
+        <h2>第三步：打开开发者工具查看调试信息</h2>
+        <div class="step">
+            <p>按 <code>F12</code> 打开开发者工具，切换到 <code>Console</code> 标签</p>
+            <p>上传文件后应该看到：</p>
+            <code>=== 文件上传调试 ===</code>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>快速操作</h2>
+        <a href="http://localhost:8000/pages/upload_resume.html?v=1762855103" class="btn">打开上传页面（无缓存）</a>
+        <button class="btn" onclick="localStorage.clear(); alert('已清除缓存！');">清除localStorage</button>
+    </div>
+</body>
+</html>
