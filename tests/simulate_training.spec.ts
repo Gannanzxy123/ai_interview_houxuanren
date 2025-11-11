@@ -1,6 +1,7 @@
 ﻿import { test, expect } from '@playwright/test';
 
-const base = process.env.SUT_URL || 'http://localhost:8080';\nconst pageUrl = base + '/pages/simulate_training.html';
+const base = process.env.SUT_URL || 'http://localhost:8080';
+const pageUrl = base + '/pages/simulate_training.html';
 
 async function setAllSliders(page, val: number) {
   const sliders = page.locator('.score-slider');
@@ -85,4 +86,5 @@ test.describe('Simulated interview flow', () => {
     await expect(report).toBeVisible();
   });
 });
+
 
