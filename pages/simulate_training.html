@@ -425,225 +425,117 @@
     <script src="../public/scripts/actions.js"></script>
     <script src="../public/scripts/state.js"></script>
     <script src="../public/scripts/questions.js"></script>
-    <script>
-        let timerInterval;
-        let startTime;
-        var currentQuestionIndex = 0;
-        let questions = [];
+    <script><script>
+(function(){
+  const progressTextEl = document.getElementById(''progressText'');
+  const progressFillEl = document.getElementById(''progressFill'');
+  const questionTypeEl = document.getElementById(''questionType'');
+  const questionTextEl = document.getElementById(''questionText'');
+  const answerInputEl  = document.getElementById(''answerInput'');
+  const reportSection  = document.getElementById(''reportSection'');
+  const interviewSection = document.getElementById(''interviewSection'');
 
-        // 鍒濆鍖栭棶棰?
-        function initializeQuestions() {
-            // 浠庨棶棰樿剼鏈幏鍙栭棶棰?
-            questions = window.generateQuestions?.(/* 宀椾綅鍜岄潰璇曞畼绫诲瀷 */) || getDefaultQuestions();
-            updateQuestionDisplay();
-            startTimer();
-        }
+  const nextBtn = document.querySelector('[data-action="Sim.Answer.Next"]');
+  const skipBtn = document.querySelector('[data-action="Sim.Skip"]');
+  const endBtn  = document.querySelector('[data-action="Sim.End"]');
 
-        function getDefaultQuestions() {
-            return [
-                {
-                    type: 'HR',
-                    text: '璇风畝鍗曚粙缁嶄竴涓嬫偍鑷繁锛屽苟璇存槑涓轰粈涔堝杩欎釜宀椾綅鎰熷叴瓒ｏ紵',
-                    dimensions: ['Comm', 'Logic']
-                },
-                {
-                    type: 'Tech',
-                    text: '璇锋弿杩颁竴涓偍瑙ｅ喅杩囩殑鎶€鏈毦棰橈紝鎮ㄦ槸濡備綍鍒嗘瀽鍜岃В鍐崇殑锛?,
-                    dimensions: ['Tech', 'Logic']
-                },
-                {
-                    type: 'Manager',
-                    text: '鍦ㄥ洟闃熷悎浣滀腑閬囧埌鎰忚鍒嗘鏃讹紝鎮ㄩ€氬父浼氬浣曞鐞嗭紵',
-                    dimensions: ['Comm', 'Stress']
-                },
-                {
-                    type: 'Stress',
-                    text: '濡傛灉鎮ㄧ殑椤圭洰杩涘害涓ラ噸婊炲悗锛屾偍浼氶噰鍙栦粈涔堟帾鏂芥潵杩借刀杩涘害锛?,
-                    dimensions: ['Stress', 'Logic']
-                }
-            ];
-        }
+  let currentQuestionIndex = 0;
+  let questions = window.generateQuestions?.() || [
+    { type: 'Tech', text: '请介绍一个你最熟悉的项目。' },
+    { type: 'Comm', text: '如何与跨部门协作推进需求？' },
+    { type: 'Logic', text: '当出现优先级冲突时如何取舍？' },
+    { type: 'Stress', text: '讲一次你在压力下解决问题的经历。' },
+    { type: 'Tech', text: '一次重要的技术决策及权衡。' },
+    { type: 'Comm', text: '如何向非技术同学解释复杂问题？' },
+    { type: 'Logic', text: '设计一个简单的打分系统。' },
+    { type: 'Stress', text: '如何应对非常紧急的线上故障？' },
+    { type: 'Tech', text: '性能优化的常见策略有哪些？' },
+    { type: 'Comm', text: '一次反馈沟通带来的改进。' }
+  ];
 
-        function updateQuestionDisplay() {
-            console.log('=== 鏇存柊闂鏄剧ず ===');
-            console.log('1. currentQuestionIndex:', currentQuestionIndex);
-            console.log('2. questions.length:', questions.length);
-            
-            if (currentQuestionIndex < questions.length) {
-                const question = questions[currentQuestionIndex];
-                console.log('3. 褰撳墠闂:', question);
-                
-                // 鏇存柊闂绫诲瀷鍜屾枃鏈?
-                document.getElementById('questionType').textContent = getTypeText(question.type);
-                document.getElementById('questionText').textContent = question.text;
-                document.getElementById('progressText').textContent = `闂 ${currentQuestionIndex + 1}/${questions.length}`;
-                document.getElementById('progressFill').style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
-                
-                // 鉁?閲嶈锛氭竻绌哄洖绛旇緭鍏ユ
-                const answerInput = document.getElementById('answerInput');
-                if (answerInput) {
-                    answerInput.value = '';
-                    console.log('4. 宸叉竻绌哄洖绛旇緭鍏ユ');
-                }
-                
-                // 鉁?閲嶈锛氶噸缃瘎鍒嗘粦鍧?
-                document.querySelectorAll('.score-slider').forEach(slider => {
-            slider.addEventListener('input', (e) => {
-                const dimension = e.target.dataset.dimension;
-                const value = e.target.value;
-                try {
-                    const scoreEl = document.getElementById((dimension.toLowerCase()) + 'Score');
-                    if (scoreEl) scoreEl.textContent = value;
-                } catch (e2) {}
-                e.target.dataset.touched = '1';
-                if (parseInt(value) > 0) {
-                    e.target.classList.remove('untouched');
-                } else {
-                    try { e.target.classList.add('untouched'); } catch (e3) {}
-                }
-                try { updateAllRated(); } catch (e4) {}
-            });
-        });
-                console.log('5. 宸查噸缃瘎鍒嗘粦鍧?);
-                
-                // 鉁?娣诲姞瑙嗚鍙嶉鍔ㄧ敾
-                const questionContainer = document.querySelector('.question-container');
-                if (questionContainer) {
-                    questionContainer.style.animation = 'fadeIn 0.3s ease';
-                }
-                
-                console.log('=== 闂鏇存柊瀹屾垚 ===');
-            } else {
-                console.log('鎵€鏈夐棶棰樺凡瀹屾垚锛岃繘鍏ユ姤鍛婄晫闈?);
-                endInterview();
-            }
-        }
+  function getSliders(){ return Array.from(document.querySelectorAll('.score-slider')); }
+  function allRated(){ return getSliders().every(s => parseInt(s.value || '0',10) > 0); }
 
-        function getTypeText(type) {
-            const typeMap = {
-                'HR': 'HR闈㈣瘯',
-                'Tech': '鎶€鏈潰璇?, 
-                'Manager': '缁忕悊闈㈣瘯',
-                'Stress': '鍘嬪姏闈㈣瘯'
-            };
-            return typeMap[type] || '缁煎悎闈㈣瘯';
-        }
+  function updateButtons(){
+    const last = currentQuestionIndex === questions.length - 1;
+    if (skipBtn) skipBtn.style.display = last ? 'none' : '';
+    if (endBtn)  endBtn.style.display  = last ? 'none' : '';
+    if (nextBtn) {
+      nextBtn.textContent = last ? '提交并生成报告' : '下一题';
+      nextBtn.setAttribute('aria-label', nextBtn.textContent);
+    }
+  }
 
-                function setActionsDisabled(disabled) {
-            const btns = document.querySelectorAll('[data-action="Sim.Skip"], [data-action="Sim.Answer.Next"], [data-action="Sim.End"]');
-            btns.forEach(b => b && (b.disabled = !!disabled));
-        }
+  function updateQuestionDisplay(){
+    const q = questions[currentQuestionIndex];
+    if (!q) return;
+    if (questionTypeEl) questionTypeEl.textContent = q.type;
+    if (questionTextEl) questionTextEl.textContent = q.text;
+    if (progressTextEl) progressTextEl.textContent = `问题 ${currentQuestionIndex+1}/${questions.length}`;
+    if (progressFillEl) progressFillEl.style.width = `${((currentQuestionIndex+1)/questions.length)*100}%`;
+    if (answerInputEl) answerInputEl.value = '';
+    updateButtons();
+  }
 
-                        function updateActionButtons() {
-            const skipBtn = document.querySelector('[data-action="Sim.Skip"]');
-            const nextBtn = document.querySelector('[data-action="Sim.Answer.Next"]');
-            const endBtn  = document.querySelector('[data-action="Sim.End"]');
-            if (typeof currentQuestionIndex === 'number' && Array.isArray(questions)) {
-                if (questions.length > 0 && currentQuestionIndex === questions.length - 1) {
-                    if (skipBtn) skipBtn.style.display = 'none';
-                    if (nextBtn) {
-                        nextBtn.style.display = '';
-                        nextBtn.textContent = '提交并生成报告';
-                        nextBtn.setAttribute('aria-label', '提交并生成报告');
-                    }
-                    if (endBtn)  endBtn.style.display  = 'none';
-                } else {
-                    if (skipBtn) skipBtn.style.display = '';
-                    if (nextBtn) {
-                        nextBtn.style.display = '';
-                        nextBtn.textContent = '下一题';
-                        nextBtn.setAttribute('aria-label', '下一题');
-                    }
-                    if (endBtn)  endBtn.style.display  = '';
-                }
-            }
-        }
-                    if (endBtn)  endBtn.style.display  = '';
-                } else {
-                    if (skipBtn) skipBtn.style.display = '';
-                    if (nextBtn) {
-                        nextBtn.style.display = '';
-                        nextBtn.textContent = '下一题';
-                        nextBtn.setAttribute('aria-label', '下一题');
-                    }
-                    if (endBtn)  endBtn.style.display  = '';
-                }
-            }
-        } else {
-                    if (skipBtn) skipBtn.style.display = '';
-                    if (nextBtn) nextBtn.style.display = '';
-                    if (endBtn)  endBtn.style.display  = '';
-                }
-            }
-        }        function updateAllRated() {\r\n            const sliders = document.querySelectorAll('.score-slider');\r\n            const allRated = Array.from(sliders).every(s => parseInt(s.value) > 0);\r\n            const container = document.querySelector('.score-sliders');\r\n            if (container) { if (allRated) { container.classList.add('all-rated'); } else { container.classList.remove('all-rated'); } }\r\n        }\r\n\r\n        function startTimer() {
-            startTime = new Date();
-            timerInterval = setInterval(() => {
-                const now = new Date();
-                const diff = Math.floor((now - startTime) / 1000);
-                const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
-                const seconds = (diff % 60).toString().padStart(2, '0');
-                document.getElementById('timer').textContent = `${minutes}:${seconds}`;
-            }, 1000);
-        }
+  function endInterview(){
+    if (interviewSection) interviewSection.style.display = 'none';
+    if (reportSection) reportSection.style.display = 'block';
+  }
 
-        function endInterview() {
-            clearInterval(timerInterval);
-            document.getElementById('interviewSection').style.display = 'none';
-            document.getElementById('reportSection').style.display = 'block';
-            
-            // 鐢熸垚鎶ュ憡鏁版嵁
-            generateReport();
-        }
+  function nextHandler(e){
+    e.preventDefault(); e.stopImmediatePropagation();
+    const last = currentQuestionIndex === questions.length - 1;
+    if (last) {
+      const ans = (answerInputEl?.value || '').trim();
+      if (!ans) { window.toast && window.toast('请填写答案后再提交'); return; }
+      endInterview();
+      return;
+    }
+    if (!allRated()) { return; }
+    currentQuestionIndex++;
+    updateQuestionDisplay();
+  }
 
-        function generateReport() {
-            // 妯℃嫙鎶ュ憡鏁版嵁鐢熸垚
-            // 瀹為檯搴旇鍩轰簬鐪熷疄鐨勮瘎鍒嗘暟鎹?
-            const scores = {
-                Comm: 8.2,
-                Tech: 7.8,
-                Logic: 8.5,
-                Stress: 7.2
-            };
+  function skipHandler(e){
+    e.preventDefault(); e.stopImmediatePropagation();
+    if (currentQuestionIndex >= questions.length - 1) return; // no skip on last
+    if (!allRated()) { return; }
+    currentQuestionIndex++;
+    updateQuestionDisplay();
+  }
 
-            document.getElementById('reportCommScore').textContent = scores.Comm;
-            document.getElementById('reportTechScore').textContent = scores.Tech;
-            document.getElementById('reportLogicScore').textContent = scores.Logic;
-            document.getElementById('reportStressScore').textContent = scores.Stress;
-        }
+  function endHandler(e){
+    e.preventDefault(); e.stopImmediatePropagation();
+    endInterview();
+  }
 
-        // 璇勫垎婊戝潡浜嬩欢
-        document.querySelectorAll('.score-slider').forEach(slider => {
-            slider.addEventListener('input', (e) => {
-                const dimension = e.target.dataset.dimension;
-                const value = e.target.value;
-                try {
-                    const scoreEl = document.getElementById((dimension.toLowerCase()) + 'Score');
-                    if (scoreEl) scoreEl.textContent = value;
-                } catch (e2) {}
-                e.target.dataset.touched = '1';
-                if (parseInt(value) > 0) {
-                    e.target.classList.remove('untouched');
-                } else {
-                    try { e.target.classList.add('untouched'); } catch (e3) {}
-                }
-                try { updateAllRated(); } catch (e4) {}
-            });
-        });
+  function startTimer(){
+    const timerEl = document.getElementById('timer');
+    const start = Date.now();
+    setInterval(() => {
+      const s = Math.floor((Date.now()-start)/1000);
+      const mm = String(Math.floor(s/60)).padStart(2,'0');
+      const ss = String(s%60).padStart(2,'0');
+      if (timerEl) timerEl.textContent = `${mm}:${ss}`;
+    }, 1000);
+  }
 
-        // 鍒濆鍖?
-        window.updateQuestionDisplay = updateQuestionDisplay;\r\n        window.endInterview = endInterview;\r\n        window.setActionsDisabled = setActionsDisabled;\r\n        window.updateActionButtons = updateActionButtons;
-
-        document.addEventListener('DOMContentLoaded', initializeQuestions);
-
-        // 寮曞绯荤粺
-        if (new URLSearchParams(window.location.search).has('guide')) {
-            setTimeout(() => {
-                toast('妯℃嫙闈㈣瘯宸插紑濮嬶紒璇疯鐪熷洖绛旀瘡涓棶棰橈紝鎮ㄥ彲浠ヤ负鑷繁鐨勮〃鐜拌瘎鍒嗐€傚畬鎴愬悗灏嗙敓鎴愯缁嗘姤鍛娿€?);
-            }, 1000);
-        }
-    </script>
+  document.addEventListener('DOMContentLoaded', () => {
+    updateQuestionDisplay();
+    startTimer();
+    nextBtn?.addEventListener('click', nextHandler, true);
+    skipBtn?.addEventListener('click', skipHandler, true);
+    endBtn?.addEventListener('click',  endHandler,  true);
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('guide')) {
+      setTimeout(() => { window.toast && window.toast('模拟面试已开始！请根据题目作答，评分将用于生成报告'); }, 500);
+    }
+  });
+})();
+</script></script>
     <script src="../public/scripts/rpa_test.js"></script>\r\n</body>
 </html>
+
 
 
 
