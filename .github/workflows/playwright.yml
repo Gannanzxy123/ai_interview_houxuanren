@@ -1,55 +1,28 @@
 ﻿name: Playwright E2E
 
-on:\n  push:\n    branches: [ main, master ]\n  pull_request:\n    branches: [ main, master ]\n  schedule:\n    - cron: '0 18 * * *'\n  workflow_dispatch:\n    branches: [ main, master ]
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target: all|desktop'
+        required: false
+        default: 'all'
 
 jobs:
-desktop:\n    name: Desktop Browsers\n    runs-on: ubuntu-latest\n    if: github.event_name != 'workflow_dispatch' || github.event.inputs.target == '' || github.event.inputs.target == 'all' || github.event.inputs.target == 'desktop'\n    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-ms-playwright-${{ hashFiles('package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-ms-playwright-
-      - name: Install dependencies
-        run: |
-          npm init -y
-          npm i -D @playwright/test http-server
-          npx playwright install --with-deps
-
-            - name: Start static server (random port)
-        run: |
-          PORT=57771
-          echo "SUT_URL=http://localhost:" >> 
-          npx http-server . -p  &
-          sleep 3
-      - name: Run Playwright tests
-        run: |
-          npx playwright test --project=chromium --project=firefox --project=webkit
-
-      - name: Upload HTML report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-html-report-desktop
-          path: playwright-report
-
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-desktop
-          path: test-results
-
-  mobile:
-    name: Mobile Browsers (main only)
+  desktop:
+    name: Desktop Browsers
     runs-on: ubuntu-latest
-    if: github.event_name == 'schedule' || (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) || (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == '' || github.event.inputs.target == 'all' || github.event.inputs.target == 'mobile'))
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.target == '' || github.event.inputs.target == 'all' || github.event.inputs.target == 'desktop'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
@@ -57,37 +30,22 @@ desktop:\n    name: Desktop Browsers\n    runs-on: ubuntu-latest\n    if: github
           key: ${{ runner.os }}-ms-playwright-${{ hashFiles('package.json') }}
           restore-keys: |
             ${{ runner.os }}-ms-playwright-
+
       - name: Install dependencies
         run: |
           npm init -y
           npm i -D @playwright/test http-server
           npx playwright install --with-deps
 
-            - name: Start static server (random port)
+      - name: Start static server (random port)
         run: |
           PORT=57771
-          echo "SUT_URL=http://localhost:" >> 
-          npx http-server . -p  &
+          echo "SUT_URL=http://localhost:${PORT}" >> $GITHUB_ENV
+          npx http-server . -p ${PORT} &
           sleep 3
+
       - name: Run Playwright tests
+        env:
+          SUT_URL: ${{ env.SUT_URL }}
         run: |
-          npx playwright test --project=mobile-chrome --project=mobile-safari
-
-      - name: Upload HTML report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-html-report-mobile
-          path: playwright-report
-
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-mobile
-          path: test-results
-
-
-
-
-
+          npx playwright test --project=chromium --project=firefox --project=webkit
