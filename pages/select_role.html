@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -223,8 +223,8 @@
             const container = document.getElementById('rolesContainer');
             container.innerHTML = roles.map(role => `
                 <div class="role-card ${selectedRole?.id === role.id ? 'selected' : ''}" 
-                     data-role-id="${role.id}"
-                     data-test="role-card-${role.id}">
+                     data-role-id="${role.id}" data-action="Role.Select"
+                            data-test="role-card-${role.id}">
                     <h3 class="role-title">${role.title}</h3>
                     <div class="role-company">${role.company}</div>
                     <div class="role-salary">${role.salary}</div>
@@ -235,7 +235,7 @@
                     <button type="button" 
                             class="select-btn"
                             data-action="Role.Select"
-                            data-role-id="${role.id}"
+                            data-role-id="${role.id}" data-action="Role.Select"
                             data-test="select-role-${role.id}"
                             aria-label="选择${role.title}岗位">
                         选择此岗位
@@ -279,3 +279,5 @@
     </script>
 </body>
 </html>
+
+
